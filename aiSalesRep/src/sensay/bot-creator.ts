@@ -32,9 +32,12 @@ export async function createSensayBot(companyName: string, rawData: RawData, sen
       slug: slug,
       llm: {
         systemPrompt: systemMessage,
-        model: 'gpt-4o-mini'
-      }
+        model: 'gpt-4o'
+      },
+      private: false
     };
+
+    console.log('requestPayload', requestPayload);
     
     console.log('\n🚀 Creating Sensay bot...');
     console.log(`📡 Making API request to: ${sensayConfig.apiUrl}/v1/replicas`);
@@ -45,8 +48,6 @@ export async function createSensayBot(companyName: string, rawData: RawData, sen
       {
         headers: {
           'X-ORGANIZATION-SECRET': sensayConfig.apiKey,
-          'X-USER-ID': sensayConfig.userId,
-          'X-USER-ID-TYPE': 'user_uuid',
           'X-API-Version': '2025-03-25',
           'Content-Type': 'application/json'
         }
