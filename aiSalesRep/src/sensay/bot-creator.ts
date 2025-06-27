@@ -29,18 +29,18 @@ export async function createSensayBot(companyName: string, rawData: RawData, sen
     const systemMessage = generateSensaySystemMessage(companyName, rawData.baseUrl, knowledgeBase);
     console.log(`✅ System message generated (${systemMessage.length} characters)`);
     
-    const botName = `${companyName} Customer Service Bot`;
+    const displayName = rawData.originalCompanyName || companyName;
     const slug = `${companyName.toLowerCase().replace(/[^a-z0-9]/g, '-')}-support-bot`;
     
-    console.log(`🤖 Bot name: ${botName}`);
+    console.log(`🤖 Bot name: ${displayName}`);
     console.log(`🔗 Bot slug: ${slug}`);
     console.log(`📊 Using data from ${rawData.pageCount} analyzed pages`);
     console.log(`📅 Analysis date: ${rawData.analysisDate}`);
     
     const requestPayload = {
-      name: botName,
-      shortDescription: `Customer service bot for ${companyName}`,
-      greeting: `Hi! I'm the ${companyName} customer service assistant. How can I help you today?`,
+      name: displayName,
+      shortDescription: `Demo of the customer support bot for ${displayName}.`,
+      greeting: `Hello and welcome! This is a demo version of the ${displayName} support bot. You’re now testing how the bot works. Please note: I’ve been trained only on information available from your company’s public website. How can I assist you today?`,
       ownerID: sensayConfig.userId,
       slug: slug,
       llm: {

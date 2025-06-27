@@ -11,37 +11,40 @@ interface DemoPageData {
     desktop: string;
     tablet: string;
     mobile: string;
-  };
+  } | null;
 }
 
-export async function generateDemoPage(companyName: string, bot: SensayBot, websiteUrl: string, screenshotPaths: { desktop: string; tablet: string; mobile: string }): Promise<string> {
+export async function generateDemoPage(companyName: string, bot: SensayBot, websiteUrl: string, screenshotPaths: { desktop: string; tablet: string; mobile: string } | null): Promise<string> {
   const analysisDir = `analysis/${companyName}`;
   const demoDir = `${analysisDir}/demo`;
   
   // Create demo directory
   await fs.mkdir(demoDir, { recursive: true });
   
-  // Copy screenshots to demo directory with web-friendly names
-  const screenshots = {
-    desktop: `${demoDir}/screenshot-desktop.png`,
-    tablet: `${demoDir}/screenshot-tablet.png`,
-    mobile: `${demoDir}/screenshot-mobile.png`
-  };
-  
-  await fs.copyFile(screenshotPaths.desktop, screenshots.desktop);
-  await fs.copyFile(screenshotPaths.tablet, screenshots.tablet);
-  await fs.copyFile(screenshotPaths.mobile, screenshots.mobile);
+  // Copy screenshots to demo directory with web-friendly names (if available)
+  let screenshots = null;
+  if (screenshotPaths) {
+    screenshots = {
+      desktop: `${demoDir}/screenshot-desktop.png`,
+      tablet: `${demoDir}/screenshot-tablet.png`,
+      mobile: `${demoDir}/screenshot-mobile.png`
+    };
+    
+    await fs.copyFile(screenshotPaths.desktop, screenshots.desktop);
+    await fs.copyFile(screenshotPaths.tablet, screenshots.tablet);
+    await fs.copyFile(screenshotPaths.mobile, screenshots.mobile);
+  }
   
   const demoData: DemoPageData = {
     botId: bot.id,
     botName: bot.name,
     websiteUrl: websiteUrl,
     companyName: companyName,
-    screenshots: {
+    screenshots: screenshots ? {
       desktop: './screenshot-desktop.png',
       tablet: './screenshot-tablet.png',
       mobile: './screenshot-mobile.png'
-    }
+    } : null
   };
   
   const htmlContent = generateDemoHTML(demoData);
@@ -114,6 +117,7 @@ function generateDemoHTML(data: DemoPageData): string {
             z-index: 1;
         }
 
+        ${data.screenshots ? `
         .screenshot-desktop {
             content: url('${data.screenshots.desktop}');
         }
@@ -143,7 +147,15 @@ function generateDemoHTML(data: DemoPageData): string {
             .website-screenshot {
                 content: url('${data.screenshots.mobile}');
             }
+        }` : `
+        .website-screenshot {
+            display: none;
         }
+        
+        .website-iframe-container {
+            width: 100%;
+            height: 600px;
+        }`}
 
         /* Loading overlay */
         .loading-overlay {

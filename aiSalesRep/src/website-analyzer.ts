@@ -17,6 +17,7 @@ export class WebsiteAnalyzer {
   private analyzedPages: AnalyzedPage[];
   private openai: OpenAI;
   private sensayConfig: SensayConfig | null;
+  private companyName: string | null;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
@@ -36,10 +37,17 @@ export class WebsiteAnalyzer {
     });
     
     this.sensayConfig = initializeSensayConfig();
+    this.companyName = null;
   }
 
   async analyze(): Promise<AnalyzedPage[]> {
     console.log(`Starting analysis of: ${this.baseUrl}`);
+    
+    console.log('🏢 Extracting company name...');
+    this.companyName = await this.extractCompanyName();
+    if (this.companyName) {
+      console.log(`Company name: ${this.companyName}`);
+    }
     
     let urls = await fetchSitemap(this.baseUrl);
     
@@ -81,9 +89,48 @@ export class WebsiteAnalyzer {
     const companyDir = `${analysisDir}/${companyName}`;
     
     console.log('\n📸 Capturing website screenshots...');
+    // Ensure directory exists before capturing screenshots
+    await import('fs/promises').then(fs => fs.mkdir(companyDir, { recursive: true }));
     const screenshots = await this.captureScreenshots(companyDir);
     
-    await saveResults(companyName, this.baseUrl, this.analyzedPages, this.openai, this.sensayConfig, createBot, screenshots);
+    await saveResults(companyName, this.baseUrl, this.analyzedPages, this.openai, this.sensayConfig, createBot, screenshots, this.companyName);
+  }
+
+  private async extractCompanyName(): Promise<string | null> {
+    try {
+      const homePageContent = await extractPageContent(this.baseUrl);
+      if (!homePageContent) return null;
+
+      const prompt = `Extract the marketing/brand name of the company from this website content. Return the name as it would appear in marketing materials or how customers would know the brand - avoid legal suffixes like "sp. j.", "LLC", "Inc.", etc. unless they are part of the actual brand name. Return only the company brand name, nothing else.
+
+Website URL: ${this.baseUrl}
+Page Title: ${homePageContent.title}
+Meta Description: ${homePageContent.metaDescription}
+Content: ${homePageContent.content.substring(0, 2000)}
+
+Examples:
+- "Apple Inc." → "Apple"
+- "Microsoft Corporation" → "Microsoft"
+- "Art-Zbyt sp. j." → "ArtZbyt"
+
+Brand Name:`;
+
+      const response = await this.openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 50,
+        temperature: 0
+      });
+
+      return response.choices[0]?.message?.content?.trim() || null;
+    } catch (error) {
+      console.warn('Failed to extract company name:', error);
+      return null;
+    }
+  }
+
+  getCompanyName(): string | null {
+    return this.companyName;
   }
 
   getSensayConfig(): SensayConfig | null {

@@ -5,7 +5,7 @@ export async function analyzeWithLLM(urls: string[], baseUrl: string, openai: Op
   console.log('Using LLM to identify relevant pages...');
   
   const urlList = urls.slice(0, 50).join('\n');
-  const prompt = `Analyze this list of URLs from a business website and identify the most relevant pages for understanding the company's business, products, services, and customer support.
+  const prompt = `Analyze this list of URLs from a business website and identify the most relevant pages for customer support representative to answer questions about the company's products, services, and policies.
 
 Look for pages like:
 - Products/services pages

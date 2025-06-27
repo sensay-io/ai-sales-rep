@@ -1,6 +1,7 @@
 import { URL } from 'url';
 import { WebsiteAnalyzer } from './website-analyzer.js';
 import { parseArgs, printHeader, printUsage, handleError } from './cli/base-cli.js';
+import { getCompanyNameFromAnalyzer } from './services/company-name.js';
 
 async function main() {
   const { url, createBot } = parseArgs();
@@ -30,8 +31,7 @@ async function main() {
     console.log('🔍 Starting website analysis...');
     await analyzer.analyze();
     
-    const domain = new URL(url).hostname.replace(/^www\./, '');
-    const companyName = domain.replace(/\./g, '-');
+    const companyName = getCompanyNameFromAnalyzer(analyzer, url);
     
     console.log(`✅ Analysis completed for: ${companyName}`);
     

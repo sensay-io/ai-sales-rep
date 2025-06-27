@@ -13,7 +13,8 @@ export async function saveResults(
   openai: OpenAI,
   sensayConfig: SensayConfig | null,
   createBot: boolean = false,
-  screenshots?: { desktop: string; tablet: string; mobile: string } | null
+  screenshots?: { desktop: string; tablet: string; mobile: string } | null,
+  originalCompanyName?: string | null
 ): Promise<void> {
   console.log('\n=== SAVING ANALYSIS RESULTS ===');
   const markdown = await generateMarkdown(baseUrl, analyzedPages, openai);
@@ -35,7 +36,8 @@ export async function saveResults(
     analyzedPages: analyzedPages,
     analysisDate: new Date().toISOString(),
     pageCount: analyzedPages.length,
-    screenshots: screenshots
+    screenshots: screenshots,
+    originalCompanyName: originalCompanyName
   };
   console.log(`💾 Saving raw data to: ${rawDataFile}`);
   await fs.writeFile(rawDataFile, JSON.stringify(rawData, null, 2), 'utf8');
@@ -59,17 +61,15 @@ export async function saveResults(
       await fs.writeFile(botInfoFile, JSON.stringify(bot, null, 2), 'utf8');
       console.log(`✅ Bot information saved to: ${botInfoFile}`);
       
-      // Generate demo page
-      if (screenshots) {
-        try {
-          const { generateDemoPage } = await import('../demo/demo-generator.js');
-          console.log('\n🎨 Generating demo page...');
-          const demoPath = await generateDemoPage(companyName, bot, baseUrl, screenshots);
-          console.log(`🎉 Demo page created: ${demoPath}`);
-          console.log(`🌐 Open the demo page in your browser to test the bot!`);
-        } catch (demoError) {
-          console.error('⚠️  Failed to generate demo page:', demoError);
-        }
+      // Generate demo page (with or without screenshots)
+      try {
+        const { generateDemoPage } = await import('../demo/demo-generator.js');
+        console.log('\n🎨 Generating demo page...');
+        const demoPath = await generateDemoPage(companyName, bot, baseUrl, screenshots || null);
+        console.log(`🎉 Demo page created: ${demoPath}`);
+        console.log(`🌐 Open the demo page in your browser to test the bot!`);
+      } catch (demoError) {
+        console.error('⚠️  Failed to generate demo page:', demoError);
       }
     } else {
       console.log('❌ Bot creation failed - no bot info to save');

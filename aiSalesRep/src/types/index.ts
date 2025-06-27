@@ -29,4 +29,6 @@ export interface RawData {
   analyzedPages: AnalyzedPage[];
   analysisDate: string;
   pageCount: number;
+  screenshots?: { desktop: string; tablet: string; mobile: string } | null;
+  originalCompanyName?: string | null;
 }

@@ -1,6 +1,7 @@
 import { URL } from 'url';
 import { WebsiteAnalyzer } from './website-analyzer.js';
 import { parseArgs, printHeader, handleError } from './cli/base-cli.js';
+import { getCompanyNameFromAnalyzer } from './services/company-name.js';
 import { spawn } from 'child_process';
 import { promisify } from 'util';
 
@@ -75,8 +76,7 @@ async function main() {
     const analyzer = new WebsiteAnalyzer(url);
     await analyzer.analyze();
     
-    const domain = new URL(url).hostname.replace(/^www\./, '');
-    const companyName = domain.replace(/\./g, '-');
+    const companyName = getCompanyNameFromAnalyzer(analyzer, url);
     
     console.log(`✅ Analysis completed for: ${companyName}`);
     
