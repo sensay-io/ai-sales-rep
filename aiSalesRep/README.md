@@ -4,10 +4,22 @@ An intelligent website crawler that uses ChatGPT to analyze business websites an
 
 ## 🚀 Features
 
-- **Smart Website Analysis**: Uses LLM to intelligently select relevant pages (FAQ, products, services, etc.)
-- **Business Knowledge Extraction**: Generates comprehensive business summaries from website content
-- **Automatic Bot Training**: Creates and trains Sensay customer service bots with extracted knowledge
-- **Organized Output**: Structured analysis results in company-specific folders
+- **🎯 One-Command Full Demo**: Complete workflow from URL to interactive demo in one command
+- **🧠 Smart Website Analysis**: Uses LLM to intelligently select relevant pages (FAQ, products, services, etc.)
+- **📝 Business Knowledge Extraction**: Generates comprehensive business summaries from website content
+- **🤖 Automatic Bot Training**: Creates and trains Sensay customer service bots with extracted knowledge
+- **🌐 Interactive Demo Server**: Built-in demo server with responsive design showcases
+- **📁 Organized Output**: Structured analysis results in company-specific folders
+
+## ⚡ Quick Start
+
+**Want to see it in action immediately?**
+```bash
+npm install
+# Set your OPENAI_API_KEY and SENSAY_* credentials in .env
+npm run full-demo -- https://example.com
+```
+This single command will crawl the website, create a bot, start a demo server, and open your browser to test it!
 
 ## 📋 Prerequisites
 
@@ -55,15 +67,32 @@ To create bots automatically, you'll need Sensay credentials:
 
 ## 📖 Usage
 
-### Basic Website Analysis
+### 🚀 Quick Start - Full Demo Workflow
+**One command that does everything: crawl → create bot → start server → open browser**
 ```bash
-npm run dev https://example.com
+npm run full-demo -- https://example.com
+```
+This will:
+- Analyze the website and extract content
+- Create a Sensay bot automatically  
+- Start the demo server
+- Open your browser to the interactive demo
+
+### 📊 Website Analysis Only
+```bash
+npm run analyze -- https://example.com
 ```
 
-### Analysis + Automatic Bot Creation
+### 🤖 Analysis + Bot Creation
 ```bash
-npm run dev https://example.com --create-bot
+npm run analyze-with-bot -- https://example.com
 ```
+
+### 🌐 Demo Server Only
+```bash
+npm run demo-server
+```
+Then visit: `http://localhost:3005`
 
 ## 📁 Output Structure
 
@@ -112,26 +141,51 @@ OPENAI_BASE_URL=https://api.openai.com/v1  # Default
 SENSAY_API_URL=https://api.sensay.io       # Default
 ```
 
-## 📊 Example Workflow
+## 📊 Example Workflows
 
+### 🚀 Full Demo Workflow (Recommended)
 ```bash
-# 1. Analyze Shopify's website and create a bot
-npm run dev https://shopify.com --create-bot
+# One command does everything!
+npm run full-demo -- https://shopify.com
 
 # Output:
+# 📊 STEP 1: Website Analysis
 # ✅ Found sitemap with 1,247 URLs
 # ✅ LLM selected 12 relevant pages
 # ✅ Analyzed 12 pages successfully
+# 
+# 🤖 STEP 2: Bot Creation  
 # ✅ Business summary generated
 # ✅ Sensay training data created
 # ✅ Bot created: Shopify Customer Service Bot
-# ✅ Bot URL: https://sensay.io/replicas/shopify-support-bot
+#
+# 🌐 STEP 3: Demo Server
+# ✅ Demo server running: http://localhost:3005
+#
+# 🚀 STEP 4: Opening Demo
+# ✅ Demo page opened: http://localhost:3005/demo/shopify-com
+```
 
-# 2. Check results
+### 📊 Analysis Only
+```bash
+npm run analyze -- https://shopify.com
+# Just creates analysis files without bot creation
+```
+
+### 🤖 Bot Creation Only  
+```bash
+npm run analyze-with-bot -- https://shopify.com
+# Creates analysis + bot, but no demo server
+```
+
+### 📁 Check Results
+```bash
 ls analysis/shopify-com/
 # shopify-com-knowledge-base.md
-# shopify-com-raw-data.json
+# shopify-com-raw-data.json  
 # shopify-com-sensay-bot.json
+# demo/
+#   └── index.html
 # sensay-training/
 ```
 
