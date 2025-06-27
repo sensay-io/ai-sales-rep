@@ -12,7 +12,8 @@ export async function saveResults(
   analyzedPages: AnalyzedPage[], 
   openai: OpenAI,
   sensayConfig: SensayConfig | null,
-  createBot: boolean = false
+  createBot: boolean = false,
+  screenshots?: { desktop: string; tablet: string; mobile: string } | null
 ): Promise<void> {
   console.log('\n=== SAVING ANALYSIS RESULTS ===');
   const markdown = await generateMarkdown(baseUrl, analyzedPages, openai);
@@ -33,7 +34,8 @@ export async function saveResults(
     baseUrl: baseUrl,
     analyzedPages: analyzedPages,
     analysisDate: new Date().toISOString(),
-    pageCount: analyzedPages.length
+    pageCount: analyzedPages.length,
+    screenshots: screenshots
   };
   console.log(`💾 Saving raw data to: ${rawDataFile}`);
   await fs.writeFile(rawDataFile, JSON.stringify(rawData, null, 2), 'utf8');
@@ -44,6 +46,9 @@ export async function saveResults(
   console.log('\n✅ FILES SAVED:');
   console.log(`📄 Business knowledge base: ${analysisFile}`);
   console.log(`📊 Raw data: ${rawDataFile}`);
+  if (screenshots) {
+    console.log(`📸 Screenshots: ${screenshots.desktop}, ${screenshots.tablet}, ${screenshots.mobile}`);
+  }
   
   if (createBot && sensayConfig) {
     console.log('\n🤖 Bot creation requested...');
@@ -53,6 +58,19 @@ export async function saveResults(
       console.log(`💾 Saving bot info to: ${botInfoFile}`);
       await fs.writeFile(botInfoFile, JSON.stringify(bot, null, 2), 'utf8');
       console.log(`✅ Bot information saved to: ${botInfoFile}`);
+      
+      // Generate demo page
+      if (screenshots) {
+        try {
+          const { generateDemoPage } = await import('../demo/demo-generator.js');
+          console.log('\n🎨 Generating demo page...');
+          const demoPath = await generateDemoPage(companyName, bot, baseUrl, screenshots);
+          console.log(`🎉 Demo page created: ${demoPath}`);
+          console.log(`🌐 Open the demo page in your browser to test the bot!`);
+        } catch (demoError) {
+          console.error('⚠️  Failed to generate demo page:', demoError);
+        }
+      }
     } else {
       console.log('❌ Bot creation failed - no bot info to save');
     }

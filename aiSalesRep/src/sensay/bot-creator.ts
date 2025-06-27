@@ -2,6 +2,7 @@ import axios from 'axios';
 import fs from 'fs/promises';
 import { SensayConfig, SensayBot, RawData } from '../types/index.js';
 import { generateSensaySystemMessage } from '../services/system-message.js';
+import { generateDemoPage } from '../demo/demo-generator.js';
 
 export async function createSensayBot(companyName: string, rawData: RawData, sensayConfig: SensayConfig): Promise<SensayBot | null> {
   console.log('\n=== STARTING BOT CREATION PROCESS ===');
@@ -89,11 +90,28 @@ export async function createSensayBot(companyName: string, rawData: RawData, sen
   }
 }
 
-export async function saveBotInfo(companyName: string, bot: SensayBot): Promise<void> {
+export async function saveBotInfo(companyName: string, bot: SensayBot, rawData?: any): Promise<void> {
   try {
     const botInfoFile = `analysis/${companyName}/${companyName}-sensay-bot.json`;
     await fs.writeFile(botInfoFile, JSON.stringify(bot, null, 2), 'utf8');
     console.log(`💾 Bot information saved to: ${botInfoFile}`);
+    
+    // Generate demo page if screenshots are available
+    if (rawData?.screenshots && rawData?.baseUrl) {
+      try {
+        console.log('\n🎨 Generating demo page...');
+        const demoPath = await generateDemoPage(
+          companyName, 
+          bot, 
+          rawData.baseUrl, 
+          rawData.screenshots
+        );
+        console.log(`🎉 Demo page created: ${demoPath}`);
+        console.log(`🌐 Open the demo page in your browser to test the bot!`);
+      } catch (demoError) {
+        console.error('⚠️  Failed to generate demo page:', demoError);
+      }
+    }
   } catch (error) {
     console.error('❌ Failed to save bot information:', error);
   }

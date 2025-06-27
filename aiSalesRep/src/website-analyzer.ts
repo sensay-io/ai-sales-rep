@@ -4,7 +4,7 @@ import { URL } from 'url';
 import { AnalyzedPage, SensayConfig } from './types/index.js';
 import { initializeSensayConfig } from './config/sensay-config.js';
 import { fetchSitemap } from './crawling/sitemap.js';
-import { crawlWebsite } from './crawling/crawler.js';
+import { crawlWebsite, captureResponsiveScreenshots } from './crawling/crawler.js';
 import { extractPageContent } from './crawling/content-extractor.js';
 import { analyzeWithLLM } from './analysis/llm-analyzer.js';
 import { saveResults } from './output/file-manager.js';
@@ -72,8 +72,18 @@ export class WebsiteAnalyzer {
     return this.analyzedPages;
   }
 
+  async captureScreenshots(outputDir: string): Promise<{ desktop: string; tablet: string; mobile: string } | null> {
+    return await captureResponsiveScreenshots(this.baseUrl, outputDir);
+  }
+
   async saveResults(companyName: string, createBot: boolean = false): Promise<void> {
-    await saveResults(companyName, this.baseUrl, this.analyzedPages, this.openai, this.sensayConfig, createBot);
+    const analysisDir = 'analysis';
+    const companyDir = `${analysisDir}/${companyName}`;
+    
+    console.log('\n📸 Capturing website screenshots...');
+    const screenshots = await this.captureScreenshots(companyDir);
+    
+    await saveResults(companyName, this.baseUrl, this.analyzedPages, this.openai, this.sensayConfig, createBot, screenshots);
   }
 
   getSensayConfig(): SensayConfig | null {

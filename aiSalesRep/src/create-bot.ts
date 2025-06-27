@@ -65,7 +65,7 @@ async function main() {
     const bot = await createSensayBot(companyName, rawData, sensayConfig);
     
     if (bot) {
-      await saveBotInfo(companyName, bot);
+      await saveBotInfo(companyName, bot, rawData);
       
       console.log('\n🎉 BOT CREATION COMPLETED!');
       console.log('===========================');
