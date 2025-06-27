@@ -1,14 +1,21 @@
 import fs from 'fs/promises';
 import { AnalyzedPage } from '../types/index.js';
 import { generateSensaySystemMessage } from './system-message.js';
+import { loadKnowledgeBase } from './analysis-loader.js';
 
 export async function createSensayTrainingData(companyName: string, companyDir: string, baseUrl: string, analyzedPages: AnalyzedPage[]): Promise<void> {
   const trainingDir = `${companyDir}/sensay-training`;
   await fs.mkdir(trainingDir, { recursive: true });
   await fs.mkdir(`${trainingDir}/knowledge-base`, { recursive: true });
   
+  console.log('📝 Loading knowledge base for system message...');
+  const knowledgeBase = await loadKnowledgeBase(companyName);
+  if (!knowledgeBase) {
+    throw new Error(`Knowledge base not found for ${companyName}`);
+  }
+  
   console.log('📝 Generating system message for training...');
-  const systemMessage = generateSensaySystemMessage(companyName, baseUrl, analyzedPages);
+  const systemMessage = generateSensaySystemMessage(companyName, baseUrl, knowledgeBase);
   await fs.writeFile(`${trainingDir}/system-message.txt`, systemMessage, 'utf8');
   
   console.log(`📚 Creating ${analyzedPages.length} knowledge base files...`);
@@ -38,8 +45,14 @@ export async function regenerateTrainingData(companyName: string, baseUrl: strin
   await fs.rm(`${trainingDir}/knowledge-base`, { recursive: true, force: true });
   await fs.mkdir(`${trainingDir}/knowledge-base`, { recursive: true });
   
+  console.log('📝 Loading knowledge base for system message...');
+  const knowledgeBase = await loadKnowledgeBase(companyName);
+  if (!knowledgeBase) {
+    throw new Error(`Knowledge base not found for ${companyName}`);
+  }
+  
   console.log('📝 Generating system message for training...');
-  const systemMessage = generateSensaySystemMessage(companyName, baseUrl, analyzedPages);
+  const systemMessage = generateSensaySystemMessage(companyName, baseUrl, knowledgeBase);
   await fs.writeFile(`${trainingDir}/system-message.txt`, systemMessage, 'utf8');
   
   console.log(`📚 Creating ${analyzedPages.length} knowledge base files...`);

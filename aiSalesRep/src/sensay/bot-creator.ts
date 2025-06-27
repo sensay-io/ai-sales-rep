@@ -3,6 +3,7 @@ import fs from 'fs/promises';
 import { SensayConfig, SensayBot, RawData } from '../types/index.js';
 import { generateSensaySystemMessage } from '../services/system-message.js';
 import { generateDemoPage } from '../demo/demo-generator.js';
+import { loadKnowledgeBase } from '../services/analysis-loader.js';
 
 export async function createSensayBot(companyName: string, rawData: RawData, sensayConfig: SensayConfig): Promise<SensayBot | null> {
   console.log('\n=== STARTING BOT CREATION PROCESS ===');
@@ -13,8 +14,19 @@ export async function createSensayBot(companyName: string, rawData: RawData, sen
   console.log(`🔗 API URL: ${sensayConfig.apiUrl}`);
   
   try {
+    console.log('\n📝 Loading knowledge base...');
+    const knowledgeBase = await loadKnowledgeBase(companyName);
+    
+    if (!knowledgeBase) {
+      console.log(`❌ No knowledge base found for: ${companyName}`);
+      console.log('💡 Make sure the analysis has been completed and knowledge base file exists');
+      return null;
+    }
+    
+    console.log(`✅ Knowledge base loaded (${knowledgeBase.length} characters)`);
+    
     console.log('\n📝 Generating system message...');
-    const systemMessage = generateSensaySystemMessage(companyName, rawData.baseUrl, rawData.analyzedPages);
+    const systemMessage = generateSensaySystemMessage(companyName, rawData.baseUrl, knowledgeBase);
     console.log(`✅ System message generated (${systemMessage.length} characters)`);
     
     const botName = `${companyName} Customer Service Bot`;
@@ -32,7 +44,7 @@ export async function createSensayBot(companyName: string, rawData: RawData, sen
       ownerID: sensayConfig.userId,
       slug: slug,
       llm: {
-        systemPrompt: systemMessage,
+        systemMessage,
         model: 'gpt-4o'
       },
       private: false
@@ -58,7 +70,6 @@ export async function createSensayBot(companyName: string, rawData: RawData, sen
     console.log('\n🎉 SUCCESS! Sensay bot created successfully!');
     console.log(`✅ Bot name: ${botName}`);
     console.log(`🆔 Bot ID: ${response.data.uuid}`);
-    console.log(`🔗 Bot URL: https://sensay.io/replicas/${slug}`);
     console.log(`📊 Response status: ${response.status}`);
     
     return {

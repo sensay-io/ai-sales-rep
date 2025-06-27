@@ -9,6 +9,7 @@
     "start": "npm run build && node dist/index.js",
     "analyze": "tsx src/index.ts",
     "analyze-with-bot": "tsx src/index.ts -- --create-bot",
+    "create-bot": "tsx src/create-bot.ts",
     "full-demo": "tsx src/full-demo.ts",
     "demo-server": "tsx src/demo/server.ts",
     "regenerate-training": "tsx src/regenerate-training.ts",

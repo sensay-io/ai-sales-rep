@@ -23,3 +23,14 @@ export async function loadAnalysisData(companyName: string): Promise<RawData | n
     return null;
   }
 }
+
+export async function loadKnowledgeBase(companyName: string): Promise<string | null> {
+  try {
+    const knowledgeBasePath = `analysis/${companyName}/${companyName}-knowledge-base.md`;
+    const knowledgeBaseContent = await fs.readFile(knowledgeBasePath, 'utf8');
+    return knowledgeBaseContent;
+  } catch (error) {
+    console.error(`❌ Failed to load knowledge base for ${companyName}:`, error);
+    return null;
+  }
+}
