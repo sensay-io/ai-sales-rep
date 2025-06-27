@@ -21,7 +21,7 @@ Website: ${baseUrl}
 URLs to analyze:
 ${urlList}
 
-Return ONLY the most relevant URLs (max 15), one per line, without any explanations or additional text:`;
+Return ONLY the most relevant URLs (max 30), one per line, without any explanations or additional text:`;
 
   try {
     const response = await openai.chat.completions.create({

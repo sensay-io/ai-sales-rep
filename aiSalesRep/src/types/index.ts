@@ -31,4 +31,5 @@ export interface RawData {
   pageCount: number;
   screenshots?: { desktop: string; tablet: string; mobile: string } | null;
   originalCompanyName?: string | null;
+  suggestedQuestions?: string[];
 }

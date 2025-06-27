@@ -47,7 +47,10 @@ export async function createSensayBot(companyName: string, rawData: RawData, sen
         systemMessage,
         model: 'gpt-4o'
       },
-      private: false
+      private: false,
+      ...(rawData.suggestedQuestions && rawData.suggestedQuestions.length > 0 && {
+        suggestedQuestions: rawData.suggestedQuestions
+      })
     };
 
     console.log('requestPayload', requestPayload);
@@ -68,13 +71,13 @@ export async function createSensayBot(companyName: string, rawData: RawData, sen
     );
     
     console.log('\n🎉 SUCCESS! Sensay bot created successfully!');
-    console.log(`✅ Bot name: ${botName}`);
+    console.log(`✅ Bot name: ${displayName}`);
     console.log(`🆔 Bot ID: ${response.data.uuid}`);
     console.log(`📊 Response status: ${response.status}`);
     
     return {
       id: response.data.uuid,
-      name: botName,
+      name: displayName,
       systemMessage: systemMessage
     };
   } catch (error) {

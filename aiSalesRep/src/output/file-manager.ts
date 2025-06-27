@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import { AnalyzedPage, SensayBot } from '../types/index.js';
-import { generateMarkdown } from './markdown-generator.js';
+import { generateMarkdown, generateSuggestedQuestions } from './markdown-generator.js';
 import { createSensayTrainingData } from '../services/training-data.js';
 import { createSensayBot } from '../sensay/bot-creator.js';
 import { SensayConfig } from '../types/index.js';
@@ -17,7 +17,7 @@ export async function saveResults(
   originalCompanyName?: string | null
 ): Promise<void> {
   console.log('\n=== SAVING ANALYSIS RESULTS ===');
-  const markdown = await generateMarkdown(baseUrl, analyzedPages, openai);
+  const { markdown, businessSummary } = await generateMarkdown(baseUrl, analyzedPages, openai);
   
   const analysisDir = 'analysis';
   const companyDir = `${analysisDir}/${companyName}`;
@@ -30,6 +30,14 @@ export async function saveResults(
   console.log(`💾 Saving knowledge base to: ${analysisFile}`);
   await fs.writeFile(analysisFile, markdown, 'utf8');
   
+  // Generate suggested questions if bot creation is requested
+  let suggestedQuestions: string[] = [];
+  if (createBot) {
+    console.log('🤔 Generating suggested questions...');
+    suggestedQuestions = await generateSuggestedQuestions(businessSummary, openai);
+    console.log(`✅ Generated ${suggestedQuestions.length} suggested questions`);
+  }
+  
   const rawDataFile = `${companyDir}/${companyName}-raw-data.json`;
   const rawData = {
     baseUrl: baseUrl,
@@ -37,7 +45,8 @@ export async function saveResults(
     analysisDate: new Date().toISOString(),
     pageCount: analyzedPages.length,
     screenshots: screenshots,
-    originalCompanyName: originalCompanyName
+    originalCompanyName: originalCompanyName,
+    suggestedQuestions: suggestedQuestions
   };
   console.log(`💾 Saving raw data to: ${rawDataFile}`);
   await fs.writeFile(rawDataFile, JSON.stringify(rawData, null, 2), 'utf8');
