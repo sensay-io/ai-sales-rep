@@ -216,7 +216,7 @@ function generateDemoHTML(data: DemoPageData): string {
     </div>
 
     <!-- Embed Script -->
-    <script src="https://localhost:3001/${data.botId}/embed-script.js" defer></script>
+    <script src="https://localhost:3002/${data.botId}/embed-script.js" defer></script>
 
     <script>
         let iframeLoadTimeout;
