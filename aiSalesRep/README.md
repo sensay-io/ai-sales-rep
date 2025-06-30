@@ -112,6 +112,120 @@ analysis/
             └── faq.md
 ```
 
+## 🚀 How the Full Demo Works
+
+The application follows a comprehensive 4-step workflow to transform any website into an intelligent customer service bot:
+
+```mermaid
+graph TD
+    A[🌐 Input Website URL] --> B{📋 Sitemap Available?}
+    B -->|Yes| C[🔍 Fetch sitemap.xml]
+    B -->|No| D[🕷️ Crawl Website with Puppeteer]
+    
+    C --> E[📊 LLM URL Analysis - OpenAI API]
+    D --> E
+    
+    E --> F[🎯 Select Relevant Pages<br/>Max 30 URLs → Max 15 URLs]
+    F --> G[📄 Extract Page Content<br/>Cheerio + Content Processing]
+    
+    G --> H[🧠 LLM Business Analysis - OpenAI API]
+    H --> I[💾 Generate Knowledge Base<br/>Markdown + Raw Data]
+    
+    I --> J{🤖 Create Bot?}
+    J -->|Yes| K[🎨 Generate System Message - OpenAI API]
+    J -->|No| Z[✅ Analysis Complete]
+    
+    K --> L[📝 Generate Questions - OpenAI API]
+    L --> M[🚀 Create Sensay Bot - Sensay API]
+    M --> N[📸 Capture Screenshots<br/>Puppeteer]
+    N --> O[🎯 Generate Demo Page]
+    O --> P[🌐 Start Demo Server<br/>Express.js]
+    P --> Q[🚀 Open Browser]
+    Q --> R[✅ Full Demo Complete]
+
+    style A fill:#e1f5fe
+    style E fill:#fff3e0
+    style H fill:#fff3e0
+    style K fill:#fff3e0
+    style L fill:#fff3e0
+    style M fill:#f3e5f5
+    style N fill:#e8f5e8
+    style P fill:#e8f5e8
+    style R fill:#e8f5e8
+```
+
+### 🔧 Technical Architecture
+
+#### API Calls & External Services:
+1. **OpenAI API** (`src/website-analyzer.ts:118`, `src/analysis/llm-analyzer.ts:27`, `src/analysis/business-summarizer.ts:29`)
+   - **Company Name Extraction**: Analyzes homepage content to extract brand name
+   - **URL Analysis**: LLM selects most relevant pages from sitemap/crawled URLs
+   - **Business Summarization**: Creates comprehensive business knowledge base
+   - **System Message Generation**: Crafts intelligent bot personality and instructions
+   - **Question Generation**: Creates suggested questions for bot testing
+
+2. **Sensay API** (`src/sensay/bot-creator.ts:61`)
+   - **Bot Creation**: Creates customer service bot with generated knowledge
+   - **Authentication**: Uses organization API key and user credentials
+   - **Model Configuration**: Deploys with GPT-4o and custom system message
+
+3. **External Website APIs**:
+   - **Sitemap Fetch**: HTTP requests to `/sitemap.xml` (`src/crawling/sitemap.ts:7`)
+   - **Content Extraction**: HTTP requests to individual pages (`src/crawling/content-extractor.ts`)
+
+#### LLM Usage Points:
+- **Page Selection** (`src/analysis/llm-analyzer.ts`): Analyzes up to 50 URLs, returns max 15 relevant pages
+- **Company Name Extraction** (`src/website-analyzer.ts:104`): Extracts brand name from homepage
+- **Business Analysis** (`src/analysis/business-summarizer.ts`): Creates structured knowledge base
+- **System Message** (`src/services/system-message.ts`): Generates bot personality and instructions  
+- **Suggested Questions** (`src/output/markdown-generator.ts`): Creates demo questions
+
+#### Web Scraping & Automation:
+- **Puppeteer Integration**: Website crawling, screenshot capture, responsive design testing
+- **Content Processing**: Cheerio for HTML parsing and content extraction
+- **Sitemap Processing**: XML parsing for comprehensive URL discovery
+
+### 🔄 Data Flow Process:
+
+1. **Discovery Phase**: 
+   - Sitemap parsing (`src/crawling/sitemap.ts`) or website crawling (`src/crawling/crawler.ts`)
+   - URL filtering and relevance scoring
+
+2. **Analysis Phase**:
+   - Content extraction with Cheerio (`src/crawling/content-extractor.ts`)
+   - LLM-powered page selection and business analysis
+   - Knowledge base generation (`src/output/markdown-generator.ts`)
+
+3. **Bot Creation Phase**:
+   - System message generation (`src/services/system-message.ts`)
+   - Sensay API integration (`src/sensay/bot-creator.ts`)  
+   - Training data structuring (`src/services/training-data.ts`)
+
+4. **Demonstration Phase**:
+   - Screenshot capture (`src/crawling/crawler.ts:61`)
+   - Demo page generation (`src/demo/demo-generator.ts`)
+   - Express server hosting (`src/demo/server.ts`)
+
+### 📊 Generated Outputs:
+
+```
+analysis/company-name/
+├── company-name-knowledge-base.md     # LLM-generated business summary
+├── company-name-raw-data.json         # Structured analysis data
+├── company-name-sensay-bot.json       # Bot configuration & ID
+├── demo/
+│   ├── index.html                     # Interactive demo page
+│   ├── screenshot-desktop.png         # Website screenshots
+│   ├── screenshot-tablet.png
+│   └── screenshot-mobile.png
+└── sensay-training/
+    ├── system-message.txt             # Bot personality prompt
+    └── knowledge-base/                # Individual page content
+        ├── homepage.md
+        ├── products.md
+        └── faq.md
+```
+
 ## 🤖 Bot Training Process
 
 ### How It Works:
